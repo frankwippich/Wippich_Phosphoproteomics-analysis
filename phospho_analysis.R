@@ -593,13 +593,15 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
   limma_res$InR.pathway <- data.matrix(limma_res$gene_name %in% InR.list)
   
   TEST_InR<-t.test(limma_res$norm_logFC[limma_res$InR.pathway==FALSE],limma_res$norm_logFC[limma_res$InR.pathway==TRUE],paired=FALSE)
+
   
   plot_InR<-ggplot(data=limma_res,aes(InR.pathway,norm_logFC,fill=InR.pathway))+
-    geom_boxplot()+
     ggtitle("Fig. 6b: InR pathway components")+
-    # scale_fill_brewer(palette = "Set1")+
-    scale_fill_manual(values = c("grey","#F5D328"))+
-    labs(x=paste("\n","p = ",signif(TEST_InR$p.value, digits=3)))+
+    geom_jitter(aes(color=InR.pathway.handpicked), size=0.5)+
+    geom_boxplot(size=0.2, position=pd,outlier.shape = NA,alpha=0.2)+
+    scale_fill_manual(values = c("grey","#F0B949"))+
+    scale_color_manual(values = c("grey","#F0B949"))+
+    labs(x=paste("\n","p = ",signif(TEST_hand$p.value, digits=3)))+
     theme_classic()
   
   ##################################################################################################
