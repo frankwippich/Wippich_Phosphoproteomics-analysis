@@ -27,23 +27,7 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
    file.exists("fbgn_NAseq_Uniprot_fb_2018_01.RData"))
 {
   
-  #Defining some analysis functions
-  add_col_to_df<-function(df,col_name,colvar_init=NA,Vector,data_col="Experiment.ID",Vectornames=NULL,create_column=T){
-    if(create_column)df[,col_name]<-colvar_init
-    df[,col_name]<-as.character(df[,col_name])
-    if(length(Vectornames)==0)Vectornames<-Vector
-    count=1
-    for(i in Vector){
-      print(i)
-      x<-Vectornames[count][1]
-      df[,col_name][grep(i,df[,data_col])]<-x
-      count=count+1
-    }
-    df[,col_name]<-factor(df[,col_name],ordered=T,levels=c(colvar_init,Vector))
-    return(df)
-  }
-  
-  
+
   
   #Loading data and annotating experimental conditions
   conditions<- data.frame("tmt.label"=c("126","127","128","129","130","131"), "rep"=c("rep1","rep2","rep1","rep2","rep3","rep3"),"condition"=c("fed","fed","stvd","stvd","stvd","fed"), "File.name"=rep("180419_G0122_MH_FW_trypsin_PSMs",6))
@@ -137,7 +121,7 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
   Data_proteome2$File.name<-conditions$File.name[1]
   
   
-  mdata.P<-melt(Data_proteome2,id.vars = c("UniprotID","File.name"),variable_name = c("tmt.label"))
+  mdata.P<-reshape::melt(Data_proteome2,id.vars = c("UniprotID","File.name"),variable_name = c("tmt.label"))
   
   mdata.P$tmt.label<-gsub("([a-z,A-Z]+_)+","",mdata.P$tmt.label)
   mdata.P$tmt.label<-as.character(mdata.P$tmt.label)
@@ -158,8 +142,8 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
   
   ##Constructing metadata
   metadata.P<-data.frame(col.name=names(raw_data.P))
-  metadata.P<-add_col_to_df(metadata.P,data_col = "col.name",col_name = "tmt.label",Vector = c("126","127","127H","128","128H","129","129H","130","130H","131","131H"))
-  metadata.P<-add_col_to_df(metadata.P,data_col = "col.name",col_name = "rep",Vector = c("rep1","rep2","rep3"))
+  metadata.P$tmt.label<-str_split_fixed(metadata.P$col.name, "_", 4)[,4]
+  metadata.P$rep<-str_split_fixed(metadata.P$col.name, "_", 4)[,3]
   metadata.P<-merge(metadata.P,conditions,sort=F)
   metadata.P$ID<-metadata.P$col.name
   
@@ -351,7 +335,7 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
   data4<-unique(merge(data4,data2[,c("ID","File.name")],by="ID"))
   
   ###########
-  mdata<-melt(data4,id.vars = c("ID","File.name"),variable_name = c("tmt.label"))
+  mdata<-reshape::melt(data4,id.vars = c("ID","File.name"),variable_name = c("tmt.label"))
   
   mdata$tmt.label<-gsub("([a-z,A-Z]+_)+","",mdata$tmt.label)
   mdata$tmt.label<-as.character(mdata$tmt.label)
@@ -371,8 +355,8 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
   
   ##Constructing metadata
   metadata<-data.frame(col.name=names(raw_data))
-  metadata<-add_col_to_df(metadata,data_col = "col.name",col_name = "tmt.label",Vector = c("126","127","127H","128","128H","129","129H","130","130H","131","131H"))
-  metadata<-add_col_to_df(metadata,data_col = "col.name",col_name = "rep",Vector = c("rep1","rep2","rep3"))
+  metadata$tmt.label<-str_split_fixed(metadata$col.name, "_", 4)[,4]
+  metadata$rep<-str_split_fixed(metadata$col.name, "_", 4)[,3]
   metadata<-merge(metadata,conditions,sort=F)
   metadata$ID<-metadata$col.name
   
@@ -679,8 +663,7 @@ if(file.exists("180419_G0122_MH_FW_trypsin_PSMs.csv")&
                         "P.Value.Proteome",
                         "Sequence_around_P",
                         "InR.pathway",
-                        grep("consens",names(limma_res),value=T)
-  )]
+                        grep("consens",names(limma_res),value=T))]
   write.csv(results,"results.csv")
   
 }else{print("ERROR: Missing Files")}
