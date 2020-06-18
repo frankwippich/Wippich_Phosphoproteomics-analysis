@@ -1,4 +1,4 @@
-#####Wippich et al. 2020__test
+#####Wippich et al. 2020
 ####Phsophoproteomics Data Analysis:
 
 #Loading packages
