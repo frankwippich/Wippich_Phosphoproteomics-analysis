@@ -14,9 +14,18 @@ require(seqinr)
 require(ggplot2)
 require(easycsv)
 
+# Please download the MS data input from: XXXXXXXXX
+
+# Please download the Drosophila proteome used for the publication from Github and store it in your working directory
+#https://github.com/frankwippich/Wippich_Phosphoproteomics-analysis/blob/master/Dm_proteome_UP000000803.txt
+
+# Please download the gene identifier conversoin file used for the publication from Github and store it in your working directory
+#https://github.com/frankwippich/Wippich_Phosphoproteomics-analysis/blob/master/fbgn_NAseq_Uniprot_fb_2018_01.RData
 
 #start clean
 rm(list=ls())
+
+
 
 ###set working directory where the MS data, D.m. proeteome and FBgeneidentifier are stored
 working_directory<-easycsv::choose_dir()
